@@ -1,0 +1,3 @@
+<24/11/2011>
+* choix de sujet :  reconnaissance de langage des signes ou exo java
+* TODO : décider rapidement

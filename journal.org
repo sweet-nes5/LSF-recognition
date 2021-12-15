@@ -1,3 +1,14 @@
 <24/11/2011>
 * choix de sujet :  reconnaissance de langage des signes ou exo java
 * TODO : décider rapidement
+
+<15/12/2021>
+* choisi : reconnaissance du langage des signes
+* FAIT :
+  - installée OpenCV (ou presque)
+* À FAIRE :
+  - localiser une main sur une image (enlever le contour)
+  - créer une petite base de données d'images
+  - commencer avec une image.
+  - essayer d'utiliser la vidéo pour récupérer des informations de profondeur
+

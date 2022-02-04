@@ -2,14 +2,15 @@ import cv2
 import mediapipe as mp
 import time
 
-class HandTracker():
-    def __init__(self, mode=False, maxHands=2, complexity = 1, detectionCon=0.5, trackCon=0.5):
+
+class HandTracker:
+    def __init__(self, mode=False, max_hands=2, complexity=1, detection_con=0.5, track_con=0.5):
 
         self.mode = mode
-        self.maxHands = maxHands
+        self.maxHands = max_hands
         self.complexity = complexity
-        self.detectionCon = detectionCon
-        self.trackCon = trackCon
+        self.detectionCon = detection_con
+        self.trackCon = track_con
         self.mpHands = mp.solutions.hands
         self.hands = self.mpHands.Hands(self.mode, self.maxHands, self.complexity,self.detectionCon, self.trackCon,)
 

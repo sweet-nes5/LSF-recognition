@@ -1,7 +1,10 @@
+get-pip.py
+.~*
+*idea*
+node_modules*
+
 # Default ignored files
 /shelf/
 /workspace.xml
-.~*
-*idea*
 
 

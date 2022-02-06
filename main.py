@@ -1,32 +1,44 @@
 import time
-from HandTracker import *
+from MyHandTracker import *
+# Enlever la partie HandTracker
+# Deplacement de la partie affichage des FPS dans une fonction à part
+# Ajout de q pour arrêter la capture + destruction de la fenetre
+
+
+def fps(img, previous_time):
+    current_time = time.time()
+    fps_number = 1 / (current_time - previous_time)
+    cv2.putText(img,
+                str(int(fps_number)),
+                (10, 70),  # position of the text
+                cv2.FONT_HERSHEY_COMPLEX,  # font of the text
+                3,  # scale
+                (255, 255, 255),  # color
+                3  # the font size
+                )
+    return img, current_time
 
 
 def main():
-    previous_time = 0
     cap = cv2.VideoCapture(0)
-    # detector = HandTracker()
+    if not cap.isOpened():
+        print("Cannot open camera")
+        exit()
+
+    current_time = 0
     while True:
         success, img = cap.read()
-        """
-        img = detector.hand_detection(img)
-        lm_list = detector.find_position(img)
-        if len(lm_list) != 0:
-            print(lm_list[4])
-        """
-        current_time = time.time()
-        fps = 1 / (current_time - previous_time)
-        previous_time = current_time
-        cv2.putText(img,
-                    str(int(fps)),
-                    (10, 70),  # position of the text
-                    cv2.FONT_HERSHEY_COMPLEX,  # font of the text
-                    3,  # scale
-                    (255, 255, 255),  # color
-                    3  # the font size
-                    )
-        cv2.imshow("image", img)
-        cv2.waitKey(1)
+        if not success:
+            print("Can't receive frame (stream end?). Exiting ...")
+            break
+
+        img, current_time = fps(img, current_time)
+        cv2.imshow("Reconnaissance LSF", img)
+        if cv2.waitKey(1) == ord('q'):
+            break
+
+    cap.release()
+    cv2.destroyAllWindows()
 
 
 if __name__ == "__main__":

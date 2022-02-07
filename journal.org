@@ -12,3 +12,13 @@
   - commencer avec une image.
   - essayer d'utiliser la vidéo pour récupérer des informations de profondeur
 
+<07/02/22>
+* FAIT :
+  - trouvé une bibliothèque (mediapipe) qui détecte la main et les phalanges
+  - détection de « l'ouverture » ou on des doigts -> détection de quelques
+    lettres
+  - début
+* TODO :
+  - détection arrière plan
+  - filtrage selon les couleurs ?
+  - apprentissage automatique des lettres ? (k moyennes par exemples)

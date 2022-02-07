@@ -33,10 +33,11 @@ def main():
             print("Can't receive frame (stream end?). Exiting ...")
             break
 
-        img = tracker.tracking(img)
-        img, current_time = fps(img, current_time)
-        cv2.imshow("Reconnaissance LSF", img)
+        img_res = tracker.tracking(img)
+        img_res, current_time = fps(img_res, current_time)
+        cv2.imshow("Reconnaissance LSF", img_res)
         if cv2.waitKey(1) == ord('q'):
+            # cv2.imwrite("hand_draw.png", img)
             break
 
     cap.release()

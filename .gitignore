@@ -3,9 +3,9 @@ get-pip.py
 *idea*
 node_modules*
 __pycache__*
+database.ini
+/Hands*
 
 # Default ignored files
 /shelf/
 /workspace.xml
-
-

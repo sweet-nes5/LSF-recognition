@@ -1,8 +1,6 @@
 import time
 from MyHandTracker import *
-# Enlever la partie HandTracker
-# Deplacement de la partie affichage des FPS dans une fonction à part
-# Ajout de q pour arrêter la capture + destruction de la fenetre
+from kmeans import *
 
 
 def fps(img, previous_time):

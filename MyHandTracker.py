@@ -8,19 +8,14 @@ class MyHandTracker:
 
         # removes colors not matching a skin color
         img_blur = cv2.GaussianBlur(img, (11, 11), cv2.BORDER_DEFAULT)  # blurs
-        img_rgb = cv2.cvtColor(img_blur, cv2.COLOR_BGR2RGB)  # converts to RGB
+        img_hsv = cv2.cvtColor(img_blur, cv2.COLOR_BGR2HSV)
 
-        ranges = [(np.array([200, 130, 95]), np.array([255, 255, 255])),
-                  (np.array([100, 95, 45]), np.array([225, 165, 160])),
-                  (np.array([140, 40, 0]), np.array([185, 75, 15])),
-                  (np.array([30, 0, 0]), np.array([165, 105, 110]))]
+        mask = cv2.inRange(img_hsv, np.array([0, 50, 50]), np.array([40, 255, 255]))
+        img_mask = cv2.bitwise_and(img_hsv, img_hsv, mask=mask)
+        cv2.addWeighted(img_blank, 1, img_mask, 1, 0.0, img_blank)
 
-        for r in ranges:
-            mask = cv2.inRange(img_rgb, r[0], r[1])
-            img_mask = cv2.bitwise_and(img_rgb, img_rgb, mask=mask)
-            cv2.addWeighted(img_blank, 1, img_mask, 1, 0.0, img_blank)
-
-        img_gray = cv2.cvtColor(img_blank, cv2.COLOR_RGB2GRAY)  # converts to grayscale
+        img_bgr = cv2.cvtColor(img_blank, cv2.COLOR_HSV2BGR)
+        img_gray = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2GRAY)  # converts to grayscale
 
         # finding egdes (using canny)
         img_blur = cv2.GaussianBlur(img_gray, (11, 11), cv2.BORDER_DEFAULT)  # blurs
@@ -37,5 +32,5 @@ class MyHandTracker:
 
         # img_blank = np.zeros(img.shape, dtype='uint8')  # tips : remove this line to display the colors + edges
         cv2.drawContours(img_blank, contours, -1, (0, 0, 255), 1)  # draws the contours
-        img_bgr = cv2.cvtColor(img_blank, cv2.COLOR_BGR2RGB)
+        img_bgr = cv2.cvtColor(img_blank, cv2.COLOR_HSV2BGR)
         return img_bgr

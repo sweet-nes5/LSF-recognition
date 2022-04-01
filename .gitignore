@@ -4,7 +4,7 @@ get-pip.py
 node_modules*
 __pycache__*
 database.ini
-/Hands*
+kmeans/Hands*
 
 # Default ignored files
 /shelf/

@@ -3,30 +3,56 @@ import glob
 
 import matplotlib.pyplot as plt
 import numpy as np
+from cv2 import threshold
 from sklearn.cluster import KMeans
 from sklearn.preprocessing import StandardScaler
+from KmeansData import *
+
+import sys
+np.set_printoptions(threshold=sys.maxsize)
 
 
 def data_generation(path):
     image_path = glob.glob(path)  # List all the files whose name matches "path"
     h, w, c = cv2.imread(image_path[0]).shape  # height, width and colors of the first image
+    nb_images = 1  # range(len(image_path))
 
     # Gets all the images in the path, converts them to HLS and creates an array with the HLS values of each pixel
-    data = np.array([np.array(cv2.cvtColor(cv2.imread(image_path[i]), cv2.COLOR_BGR2HLS)) for i in range(2)])
-    # range(len(image_path))
+    data = np.array([np.array(cv2.cvtColor(cv2.imread(image_path[i]), cv2.COLOR_BGR2HLS)) for i in range(nb_images)])
 
-    # flattens the array to a 2D array (HLS values * number of pixels)
-    pixels = data.flatten().reshape(2 * h * w, 3)  # len(image_path) * h * w
-    data = np.block([[pixels[:, 0]], [pixels[:, 2]]])
+    # flattens the array to a 2D array (HLS values * number of pixels) and keeps only H and L columns
+    pixels = data.flatten().reshape(nb_images * h * w, 3)
+    data = np.block([[pixels[:, 0]], [pixels[:, 1]]])
     data = np.transpose(data)
-    print(data)
+    print("nombre de pixels : " + str(len(data)))
+
+    # Removes all the white pixels and pixels with low Lightness value (HLS is very noisy for those)
+    data_size = len(data)
+    i = 0
+    compteur_boucle = 0  # debug
+    compteur_deletion = 0  # debug
+    while i < data_size:  # data_size - debug
+        if i % 100 == 0:  # debug
+            print(i)
+        if data[i, 1] > 242 or data[i, 1] < 25:  # lightness 10% above 0 (dark) or 5% under 255 (white)
+            data = np.delete(data, i, 0)
+            i = i - 1
+            data_size = data_size - 1
+            compteur_deletion = compteur_deletion + 1
+        i = i + 1
+        compteur_boucle = compteur_boucle + 1
+    print("data après boucle : ")
+    print(data[:100, :])
+    print("nombre de pixels supprimes : " + str(compteur_deletion))
+    print("nombre de tours de boucle : " + str(compteur_boucle))
+    print("nombre de pixels non supprimes : " + str(data_size))
 
     # feature scaling (normalizes data so that they have the same weight : mean of 0 and standard deviation of 1)
-    scaler = StandardScaler()
-    scaled_data = scaler.fit_transform(data)
+    # scaler = StandardScaler()
+    # scaled_data = scaler.fit_transform(data)
 
     # print(data, file=open("kmeans_data.txt", "w"))
-    return scaled_data
+    return data
 
 
 def kmeans(n_clusters, data):
@@ -37,12 +63,16 @@ def kmeans(n_clusters, data):
     # max_iter : increased to ensure that k-means will converge.
     model = KMeans(n_clusters=n_clusters, init="k-means++", n_init=10, max_iter=1000)
     model.fit(data)
-    print(model.labels_, file=open("kmeans_labels.txt", "w"))  # label of each pixel (i.e. which cluster it belongs to)
+    kmeans_data = KmeansData(model)
+    save_object(kmeans_data)
+
+    # print(model.labels_, file=open("kmeans_labels.txt", "w"))
+    # label of each pixel (i.e. which cluster it belongs to)
     print("nombre d'iterations : " + str(model.n_iter_))
 
-    # draws all the points (from the data)
+    # draws the points (from the data)
     # debug : reduce the size of the data for speed (NOT ALL the points are drawn)
-    size = 1000  # size = model.labels_.size to get ALL the points
+    size = model.labels_.size  # size = model.labels_.size to get ALL the points
     labels = np.array(model.labels_[0:size])
     # fin debug
 
@@ -61,7 +91,7 @@ def kmeans(n_clusters, data):
 def main():
     path = "./Hands/*.jpg"
     data = data_generation(path)
-    kmeans(5, data)
+    kmeans(4, data)
 
 
 if __name__ == "__main__":

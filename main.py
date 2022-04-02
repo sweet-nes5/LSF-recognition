@@ -1,6 +1,13 @@
 import time
-from MyHandTracker import *
-from kmeans import *
+
+from myHandTracker import *
+
+import sys
+
+from kmeans.KmeansData import *
+from kmeans import KmeansData
+
+sys.modules['KmeansData'] = KmeansData
 
 
 def fps(img, previous_time):
@@ -18,6 +25,10 @@ def fps(img, previous_time):
 
 
 def main():
+    obj = load_object("./kmeans/kmeans_data.pickle")
+    print("distance moyenne aux clusters : ")
+    print(obj.model.inertia_)
+
     cap = cv2.VideoCapture(0)
     if not cap.isOpened():
         print("Cannot open camera")

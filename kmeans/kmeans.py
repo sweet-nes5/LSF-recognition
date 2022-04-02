@@ -1,14 +1,10 @@
 import cv2
 import glob
-
 import matplotlib.pyplot as plt
 import numpy as np
 from sklearn.cluster import KMeans
 # from sklearn.preprocessing import StandardScaler
 from KmeansData import *
-
-import sys
-np.set_printoptions(threshold=sys.maxsize)
 
 
 def data_generation(path):
@@ -55,23 +51,17 @@ def data_generation(path):
 
 
 def kmeans(n_clusters, data):
-    # applies k-means algorithm
-    # init="k-means++" :  ensure centroids are initialized with some distance between them (usually an improvement
-    # over "random").
-    # n_init : increased to ensure we find a stable solution (10 by default).
-    # max_iter : increased to ensure that k-means will converge.
+    # APPLIES k-means algorithm
     model = KMeans(n_clusters=n_clusters, init="k-means++", n_init=10, max_iter=1000)
     model.fit(data)
-    kmeans_data = KmeansData(model)
-    save_object(kmeans_data)
 
-    # print(model.labels_, file=open("kmeans_labels.txt", "w"))
-    # label of each pixel (i.e. which cluster it belongs to)
-    print("nombre d'iterations : " + str(model.n_iter_))
+    # SAVES the data obtained through the kmeans-algorithm
+    # kmeans_data = KmeansData(model)
+    # save_object(kmeans_data)
 
-    # draws the points (from the data)
+    # DRAWS the points (from the data)
     # debug : reduce the size of the data for speed (NOT ALL the points are drawn)
-    size = model.labels_.size  # size = model.labels_.size to get ALL the points
+    size = 2000  # size = model.labels_.size to get ALL the points
     labels = np.array(model.labels_[0:size])
     # fin debug
 
@@ -82,15 +72,19 @@ def kmeans(n_clusters, data):
     # debug : replace 0:size by :
 
     # draws the center of each cluster
-    print(model.cluster_centers_)
     plt.scatter(model.cluster_centers_[:, 0], model.cluster_centers_[:, 1], marker="o", color="green", s=200)
     plt.show()
 
 
 def main():
+    obj = load_object("kmeans_data.pickle")
+    print("distance moyenne aux clusters : ")
+    print(obj.model.inertia_)
+    '''
     path = "./Hands/*.jpg"
     data = data_generation(path)
     kmeans(4, data)
+    '''
 
 
 if __name__ == "__main__":

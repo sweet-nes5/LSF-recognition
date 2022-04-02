@@ -24,14 +24,13 @@ def main():
         exit()
 
     current_time = 0
-    tracker = MyHandTracker()
     while True:
         success, img = cap.read()
         if not success:
             print("Can't receive frame (stream end?). Exiting ...")
             break
 
-        img_res = tracker.tracking(img)
+        img_res = tracking(img)
         img_res, current_time = fps(img_res, current_time)
         cv2.imshow("Reconnaissance LSF", img_res)
         if cv2.waitKey(1) == ord('q'):

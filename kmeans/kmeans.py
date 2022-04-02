@@ -3,9 +3,8 @@ import glob
 
 import matplotlib.pyplot as plt
 import numpy as np
-from cv2 import threshold
 from sklearn.cluster import KMeans
-from sklearn.preprocessing import StandardScaler
+# from sklearn.preprocessing import StandardScaler
 from KmeansData import *
 
 import sys

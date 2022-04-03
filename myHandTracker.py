@@ -6,14 +6,16 @@ def processing(img):
     blur = cv2.medianBlur(img, 5)
     kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (8, 8))
     dilated = cv2.dilate(blur, kernel)
+    # add eroding
+    # add smoothing
     return dilated
 
 
 # Filters the pixels of the image by color
-# input: img must be in HLS
-def color_masking(img):
+# input: img_processed must be in HLS
+def color_masking(img, img_processed):
     img_blank = np.zeros(img.shape, dtype='uint8')
-    mask = cv2.inRange(img, np.array([0, 50, 50]), np.array([40, 255, 255]))
+    mask = cv2.inRange(img_processed, np.array([0, 25, 25]), np.array([40, 255, 255]))
 
     img_mask = cv2.bitwise_and(img, img, mask=mask)
     cv2.addWeighted(img_blank, 1, img_mask, 1, 0.0, img_blank)
@@ -41,7 +43,7 @@ def edges(img):
 def tracking(img):
     img_hls = cv2.cvtColor(img, cv2.COLOR_BGR2HLS)  # converts to HLS
     img_processed = processing(img_hls)
-    img_masked = color_masking(img_processed)
+    img_masked = color_masking(img, img_processed)
 
     '''
     img_bgr = cv2.cvtColor(img_processed, cv2.COLOR_HSV2BGR)
@@ -51,5 +53,5 @@ def tracking(img):
     cv2.drawContours(img_blank, contours, -1, (0, 0, 255), 1)
     '''
 
-    img_bgr = cv2.cvtColor(img_masked, cv2.COLOR_HSV2BGR)  # converts to BGR
-    return img_bgr
+    # img_bgr = cv2.cvtColor(img_masked, cv2.COLOR_HSV2BGR)  # converts to BGR
+    return img_masked

@@ -7,7 +7,7 @@ from sklearn.cluster import KMeans
 from KmeansData import *
 
 
-def data_generation(path):
+def generating_data(path):
     image_path = glob.glob(path)  # List all the files whose name matches "path"
     h, w, c = cv2.imread(image_path[0]).shape  # height, width and colors of the first image
     nb_images = 1  # range(len(image_path))
@@ -21,6 +21,8 @@ def data_generation(path):
     data = np.transpose(data)
     print("nombre de pixels : " + str(len(data)))
 
+
+def filtering_data(data):
     # Removes all the white pixels and pixels with low Lightness value (HLS is very noisy for those)
     data_size = len(data)
     i = 0
@@ -29,7 +31,7 @@ def data_generation(path):
     while i < data_size:  # data_size - debug
         if i % 100 == 0:  # debug
             print(i)
-        if data[i, 1] > 242 or data[i, 1] < 25:  # lightness 10% above 0 (dark) or 5% under 255 (white)
+        if data[i, 1] > 242 or data[i, 1] < 25:  # if lightness 10% above 0 (dark) or 5% under 255 (white)
             data = np.delete(data, i, 0)
             i = i - 1
             data_size = data_size - 1
@@ -50,15 +52,14 @@ def data_generation(path):
     return data
 
 
-def kmeans(n_clusters, data):
+def clustering_data(n_clusters, data):
     # APPLIES k-means algorithm
     model = KMeans(n_clusters=n_clusters, init="k-means++", n_init=10, max_iter=1000)
     model.fit(data)
+    return model
 
-    # SAVES the data obtained through the kmeans-algorithm
-    # kmeans_data = KmeansData(model)
-    # save_object(kmeans_data)
 
+def drawing_clusters(data, model):
     # DRAWS the points (from the data)
     # debug : reduce the size of the data for speed (NOT ALL the points are drawn)
     size = 2000  # size = model.labels_.size to get ALL the points
@@ -76,15 +77,38 @@ def kmeans(n_clusters, data):
     plt.show()
 
 
-def main():
+def applying_kmeans(img):
+    h, w, c = cv2.imread(img).shape  # height, width and colors of the first image
+
+    # Gets all the images in the path, converts them to HLS and creates an array with the HLS values of each pixel
+    data = np.array(cv2.cvtColor(cv2.imread(img), cv2.COLOR_BGR2HLS))
+
+    # flattens the array to a 2D array (HLS values * number of pixels) and keeps only H and L columns
+    pixels = data.flatten().reshape(h * w, 3)
+    data = np.block([[pixels[:, 0]], [pixels[:, 1]]])
+    data = np.transpose(data)
+    print("nombre de pixels : " + str(len(data)))
+
+    # applying the kmeans to an image
     obj = load_object("kmeans_data.pickle")
-    print("distance moyenne aux clusters : ")
-    print(obj.model.inertia_)
+    new_array = obj.model.transform(data)
+    print("Distance de chaque pixel au centre du cluster :")
+    print(new_array)
+
+
+def main():
+    applying_kmeans("../hand_draw.png")
     '''
     path = "./Hands/*.jpg"
-    data = data_generation(path)
-    kmeans(4, data)
+    data = generating_data(path)
+    data = filtering_data(data)
+    clusters = clustering_data(4, data)
+    drawing_clusters(data, clusters)
     '''
+
+    # SAVES the data obtained through the kmeans-algorithm
+    # kmeans_data = KmeansData(model)
+    # save_object(kmeans_data)
 
 
 if __name__ == "__main__":

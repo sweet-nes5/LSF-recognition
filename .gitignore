@@ -3,6 +3,7 @@ get-pip.py
 *idea*
 node_modules*
 __pycache__*
+/kmeans/Hands*
 
 # Default ignored files
 /shelf/

@@ -1,2 +1,2 @@
-Compiler le rapport :			make
-Nettoyer le dossier :			make clean
+To automatically generate the pdf report from LaTeX:		make
+To clean:							make clean

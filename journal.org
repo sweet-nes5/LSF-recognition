@@ -22,3 +22,13 @@
   - détection arrière plan
   - filtrage selon les couleurs ?
   - apprentissage automatique des lettres ? (k moyennes par exemples)
+
+<08/02/22>
+* DONE :
+  - bdd d'images pour les mains (couleurs)
+  - algo des kmeans pour déterminer les couleurs de main valides
+* TODO :
+  - est-ce que RBG est pertinent pour ça ? HSV ?
+  - développer des tests pour faire des comparaisons objectives entre les
+    différents algos testés
+  - algo des kmeans pour la reconnaissance des signes

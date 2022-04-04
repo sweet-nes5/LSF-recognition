@@ -5,30 +5,40 @@
 <15/12/2021>
 * choisi : reconnaissance du langage des signes
 * FAIT :
-  - installée OpenCV (ou presque)
-* À FAIRE :
-  - localiser une main sur une image (enlever le contour)
+- installée OpenCV (ou presque)
+  * À FAIRE :
+- localiser une main sur une image (enlever le contour)
   - créer une petite base de données d'images
   - commencer avec une image.
   - essayer d'utiliser la vidéo pour récupérer des informations de profondeur
 
-<07/02/22>
-* FAIT :
+  <07/02/22>
+  * FAIT :
   - trouvé une bibliothèque (mediapipe) qui détecte la main et les phalanges
   - détection de « l'ouverture » ou on des doigts -> détection de quelques
-    lettres
+  lettres
   - début
-* TODO :
+  * TODO :
   - détection arrière plan
   - filtrage selon les couleurs ?
-  - apprentissage automatique des lettres ? (k moyennes par exemples)
+- apprentissage automatique des lettres ? (k moyennes par exemples)
 
-<08/02/22>
-* DONE :
+  <08/02/22>
+  * DONE :
   - bdd d'images pour les mains (couleurs)
   - algo des kmeans pour déterminer les couleurs de main valides
-* TODO :
+  * TODO :
   - est-ce que RBG est pertinent pour ça ? HSV ?
   - développer des tests pour faire des comparaisons objectives entre les
-    différents algos testés
+  différents algos testés
   - algo des kmeans pour la reconnaissance des signes
+
+  <04/04/22>
+  * FAIT:
+  - algo des kmeans pour déterminer la lette correspondant au signe
+  - passage de l'algo de kmeans pour la couleur de la main en HLS (4 clusters arbitraires)
+  * TODO:
+  - revoir l'algo de reconnaissance de couleurs de la main (RGB)
+  - faire ensuite un des tests pour mesurer la précision de la detection de couleur (trouver des méthodes évaluer ça de manière efficace)
+  - voir les filtres OpenCV pour supprimer les blancs (fond)
+  - faire le lien entre les deux parties (reconnaissance de la main et du signe) et commencer à faire des tests

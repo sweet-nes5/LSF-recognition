@@ -7,8 +7,8 @@ mp_hands = mp.solutions.hands
 
 # For static images:
 with mp_hands.Hands(
-    static_image_mode=True, # only static images
-    max_num_hands=1, # max 2 hands detection
+    static_image_mode=True, # only static images for data extraction
+    max_num_hands=1, # max 1 hands detection
     min_detection_confidence=0.5) as hands:# detection confidence
         image = cv2.imread("/home/nesrine/Bureau/ProjetL/bey-gresh-plong-2021/BanqueASL/hand_0_bot_seg_1_cropped.png")
         results = hands.process(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
@@ -16,7 +16,7 @@ with mp_hands.Hands(
             print("continue")
         #print landmarks on image
         print("handedness:",results.multi_handedness)
-        image_height, image_width, _ = image.shape
+        image_height, image_width, _ = image.shape # get the height a width
         annotated_image = image.copy()
         for hand_landmarks in results.multi_hand_landmarks:
             print(f'thumb finger tip coordinates: (',
@@ -27,21 +27,21 @@ with mp_hands.Hands(
                   f'{hand_landmarks.landmark[mp_hands.HandLandmark.INDEX_FINGER_TIP].x * image_width}, '
                   f'{hand_landmarks.landmark[mp_hands.HandLandmark.INDEX_FINGER_TIP].y * image_height})'
                   )
-            print(f'Ring finger tip coordinates: (',
+            print(f'Index finger tip coordinates: (',
                   f'{hand_landmarks.landmark[mp_hands.HandLandmark.MIDDLE_FINGER_TIP].x * image_width}, '
                   f'{hand_landmarks.landmark[mp_hands.HandLandmark.MIDDLE_FINGER_TIP].y * image_height})'
                   )
-            print(f'Ring finger tip coordinates: (',
+            print(f'Middle finger tip coordinates: (',
                   f'{hand_landmarks.landmark[mp_hands.HandLandmark.RING_FINGER_TIP].x * image_width}, '
                   f'{hand_landmarks.landmark[mp_hands.HandLandmark.RING_FINGER_TIP].y * image_height})'
                   )
-            print(f'Ring finger tip coordinates: (',
+            print(f'Pinky  tip coordinates: (',
                   f'{hand_landmarks.landmark[mp_hands.HandLandmark.PINKY_TIP].x * image_width}, '
                   f'{hand_landmarks.landmark[mp_hands.HandLandmark.PINKY_TIP].y * image_height})'
                   )
 
 def processImage(image_path, output_dir):
-    """ Process input image and save output image to given directory. """
+
     image = cv2.flip(cv2.imread(image_path), 1)
     if image is None: return
     # Convert the BGR image to RGB before processing.

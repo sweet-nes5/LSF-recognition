@@ -1,31 +1,55 @@
 import time
-from HandTracker import *
+
+from myHandTracker import *
+
+import sys
+
+from kmeans.KmeansData import *
+from kmeans import KmeansData
+
+sys.modules['KmeansData'] = KmeansData
+
+
+def fps(img, previous_time):
+    current_time = time.time()
+    fps_number = 1 / (current_time - previous_time)
+    cv2.putText(img,
+                str(int(fps_number)),
+                (10, 70),  # position of the text
+                cv2.FONT_HERSHEY_COMPLEX,  # font of the text
+                3,  # scale
+                (255, 255, 255),  # color
+                3  # the font size
+                )
+    return img, current_time
 
 
 def main():
-    previous_time = 0
+    obj = load_object("./kmeans/kmeans_data.pickle")
+    print("distance moyenne aux clusters : ")
+    print(obj.model.inertia_)
+
     cap = cv2.VideoCapture(0)
-    detector = HandTracker()
+    if not cap.isOpened():
+        print("Cannot open camera")
+        exit()
+
+    current_time = 0
     while True:
         success, img = cap.read()
-        img = detector.hand_detection(img)
-        lm_list = detector.find_position(img)
-        if len(lm_list) != 0:
-            print(lm_list[4])
+        if not success:
+            print("Can't receive frame (stream end?). Exiting ...")
+            break
 
-        current_time = time.time()
-        fps = 1 / (current_time - previous_time)
-        previous_time = current_time
-        cv2.putText(img,
-                    str(int(fps)),
-                    (10, 70),  # position of the text
-                    cv2.FONT_HERSHEY_COMPLEX,  # font of the text_
-                    3,  # scale
-                    (255, 255, 255),  # color
-                    3  # the font size
-                    )
-        cv2.imshow("image", img)
-        cv2.waitKey(1)
+        img_res = tracking(img)
+        img_res, current_time = fps(img_res, current_time)
+        cv2.imshow("Reconnaissance LSF", img_res)
+        if cv2.waitKey(1) == ord('q'):
+            # cv2.imwrite("hand_draw.png", img)
+            break
+
+    cap.release()
+    cv2.destroyAllWindows()
 
 
 if __name__ == "__main__":

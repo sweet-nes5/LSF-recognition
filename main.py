@@ -1,9 +1,8 @@
 import time
-
-from myHandTracker import *
-
 import sys
 
+# from myHandTracker import *
+from HandTracker import *
 from kmeans.KmeansData import *
 from kmeans import KmeansData
 
@@ -25,7 +24,7 @@ def fps(img, previous_time):
 
 
 def main():
-    obj = load_object("./kmeans/kmeans_data.pickle")
+    obj = load_object("kmeans/kmeans_data.pickle")
     print("distance moyenne aux clusters : ")
     print(obj.model.inertia_)
 
@@ -35,13 +34,19 @@ def main():
         exit()
 
     current_time = 0
+    detector = HandTracker()
     while True:
         success, img = cap.read()
         if not success:
             print("Can't receive frame (stream end?). Exiting ...")
             break
 
-        img_res = tracking(img)
+        # img_res = tracking(img)
+        img_res = detector.hand_detection(img)
+        lm_list = detector.find_position(img)
+        if len(lm_list) != 0:
+            print(lm_list[:])
+
         img_res, current_time = fps(img_res, current_time)
         cv2.imshow("Reconnaissance LSF", img_res)
         if cv2.waitKey(1) == ord('q'):

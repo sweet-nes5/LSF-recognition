@@ -1,5 +1,6 @@
 import cv2
 import mediapipe as mp
+from collections import namedtuple
 
 
 class HandTracker:
@@ -12,9 +13,11 @@ class HandTracker:
         self.mpHands = mp.solutions.hands
         self.hands = self.mpHands.Hands(self.mode, self.maxHands, self.complexity, self.detectionCon, self.trackCon,)
         self.mpDraw = mp.solutions.drawing_utils
+        self.results = namedtuple('results', ['multi_hand_landmarks', 'multi_hand_world_landmarks', 'multi_handedness'])
 
     def hand_detection(self, img, draw=True):
         img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+
         self.results = self.hands.process(img_rgb)
         if self.results.multi_hand_landmarks:  # to check if there are more than 1 hand
             for handlms in self.results.multi_hand_landmarks:
@@ -27,11 +30,11 @@ class HandTracker:
         if self.results.multi_hand_landmarks:
             my_hand = self.results.multi_hand_landmarks[hand_num]
 
-            for id, lm in enumerate(my_hand.landmark):
+            for id_landmark, lm in enumerate(my_hand.landmark):
                 height, width, c = img.shape
                 cx, cy = int(lm.x*width), int(lm.y*height)  # to get the location in pixels
                 # print(id,cx,cy)
-                lm_list.append([id, cx, cy])
+                lm_list.append([id_landmark, cx, cy])
                 if draw:
                     cv2.circle(img, (cx, cy), 15, (255, 0), cv2.FILLED)
         return lm_list

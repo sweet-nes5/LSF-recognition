@@ -5,6 +5,7 @@ node_modules*
 __pycache__*
 database.ini
 /kmeans/Hands*
+/kmeans/Alphabet*
 
 # Default ignored files
 /shelf/

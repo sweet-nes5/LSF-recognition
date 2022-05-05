@@ -107,7 +107,7 @@ def main():
     '''
 
     # SAVES the data obtained through the kmeans-algorithm
-    # kmeans_data = KmeansData(model)
+    # kmeans_data = KmeansData(data, model)
     # save_object(kmeans_data)
 
 

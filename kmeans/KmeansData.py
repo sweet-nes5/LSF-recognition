@@ -2,13 +2,14 @@ import pickle
 
 
 class KmeansData:
-    def __init__(self, model):
+    def __init__(self, data, model):
+        self.data = data
         self.model = model
 
 
-def save_object(obj):
+def save_object(obj, name):
     try:
-        with open("kmeans_data.pickle", "wb") as f:
+        with open(name + ".pickle", "wb") as f:
             pickle.dump(obj, f, protocol=pickle.HIGHEST_PROTOCOL)
     except Exception as ex:
         print("Error during pickling object (Possibly unsupported):", ex)

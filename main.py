@@ -24,10 +24,26 @@ def fps(img, previous_time):
 
 
 def main():
-    obj = load_object("kmeans/kmeans_data.pickle")
-    print("distance moyenne aux clusters : ")
-    print(obj.model.inertia_)
+    obj = load_object("kmeans/cluster_3_letters-v01.pickle")
 
+    # for each cluster, creates an array containing the distances between the cluster and its members
+    cluster_nb = len(obj.model.cluster_centers_)
+    list_distances = [[0.0] for i in range(cluster_nb)]
+
+    for i in range(0, len(obj.model.labels_)):
+        cluster = obj.model.labels_[i]
+        list_distances[cluster].append(distance.euclidean(obj.model.cluster_centers_[cluster], obj.data[i]))
+
+    # for each cluster, calculates the average and variance of the distance between the cluster and its members
+    average = np.zeros((2, cluster_nb))
+
+    for i in range(cluster_nb):
+        list_distances[i].pop(0)
+        print(len(list_distances[i]))
+        average[0][i] = np.average(list_distances[i])
+        average[1][i] = np.std(list_distances[i])
+
+    print(average)
     cap = cv2.VideoCapture(0)
     if not cap.isOpened():
         print("Cannot open camera")
@@ -45,7 +61,17 @@ def main():
         img_res = detector.hand_detection(img)
         lm_list = detector.find_position(img)
         if len(lm_list) != 0:
-            print(lm_list[:])
+            # Calculates the values of the criterias that will be used to train the k-means model
+            lm_array = np.asarray(lm_list)
+            lm_array = lm_array[:, 1:3]  # delete the 1st of the 3 rows (the landmark indexes)
+
+            criteria_values = criterias(lm_array)
+
+            for i in range(cluster_nb):
+                dist_cluster = distance.euclidean(obj.model.cluster_centers_[i], criteria_values)
+
+                if abs(dist_cluster - average[0][i]) < average[1][i]:
+                    print(i)
 
         img_res, current_time = fps(img_res, current_time)
         cv2.imshow("Reconnaissance LSF", img_res)

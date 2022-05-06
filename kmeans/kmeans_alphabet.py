@@ -1,15 +1,12 @@
 import glob
+
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.cluster import KMeans
+from scipy.spatial import distance
 
 from KmeansData import *
 from HandTracker import *
-
-from sklearn.decomposition import PCA
-from sklearn.metrics import silhouette_score, adjusted_rand_score
-from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import LabelEncoder, MinMaxScaler
 
 
 def drawing_clusters(data, model):
@@ -28,21 +25,11 @@ def drawing_clusters(data, model):
     plt.show()
 
 
-def criterias(landmarks, criteria_nb):
-    criteria_values = np.zeros(criteria_nb)
-
-    for i in range(1, len(landmarks)):
-        criteria_values[2*i - 2] = landmarks[0][0] - landmarks[i][0]  # compare x
-        criteria_values[2*i - 1] = landmarks[0][1] - landmarks[i][1]  # compare y
-
-    return criteria_values
-
-
 def main():
-    image_path = glob.glob("./Alphabet/*.png")  # List all the files whose name matches "path"
+    image_path = glob.glob("./Alphabet/letter-*/*.png")  # List all the files whose name matches "path"
     detector = HandTracker()
-    criteria_nb = 40
-    data = np.zeros(criteria_nb)
+    data = np.zeros(crit_nb)
+    print(len(image_path))
 
     for i in range(0, len(image_path)):
         print(i)
@@ -52,32 +39,39 @@ def main():
             print("Could not read the image ", i, "\n")
         else:
             # detect the hand landmarks on the image
-            detector.hand_detection(img)
+            img_res = detector.hand_detection(img)
             lm_list = detector.find_position(img)
 
-            if lm_list:
+            if len(lm_list) == 0:
+                print("Could not detect a hand on image ", i, "\n")
+            else:
                 # Calculates the values of the criterias that will be used to train the k-means model
                 lm_array = np.asarray(lm_list)
                 lm_array = lm_array[:, 1:3]  # delete the 1st of the 3 rows (the landmark indexes)
-                criteria_values = criterias(lm_array, criteria_nb)
+                criteria_values = criterias(lm_array)
 
                 # Adds these values to the array 'data'
                 data = np.block([[data], [criteria_values]])
 
-    '''
-    # Preprocess the data
-    pca = PCA(n_components=3, random_state=42)
-    data_processed = pca.fit_transform(data[1:, :])
-    print("data_process ", data_processed)
-    '''
+                # debug : affiche les images avec les landmarks
+                '''
+                img_res = cv2.circle(img_res, (10, 10), radius=10, color=(0, 0, 255), thickness=-1)
+                img_res = cv2.circle(img_res, (300, 10), radius=10, color=(0, 0, 255), thickness=-1)
+                img_res = cv2.circle(img_res, (10, 100), radius=10, color=(0, 0, 255), thickness=-1)
+                cv2.imshow("test", img_res)
+                if cv2.waitKey(10000000) == ord('q'):
+                    # cv2.imwrite("hand_draw.png", img)
+                    continue
+                '''
+                # fin debug
 
     # Applies the kmeans algorithm to the data
     data = data[1:, :]
-    model = KMeans(n_clusters=26, init="k-means++", n_init=10, max_iter=1000)
+    model = KMeans(n_clusters=3, init="k-means++", n_init=10, max_iter=1000)
     model.fit(data)
 
     # Saves the data and the k-means model obtained
-    save_object(KmeansData(data, model), "cluster_alphabet_40-v02")
+    save_object(KmeansData(data, model), "cluster_3_letters-v01")
 
 
 if __name__ == "__main__":

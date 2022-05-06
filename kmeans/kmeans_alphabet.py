@@ -1,38 +1,22 @@
 import glob
 
-import numpy as np
-import matplotlib.pyplot as plt
 from sklearn.cluster import KMeans
-from scipy.spatial import distance
 
 from KmeansData import *
 from HandTracker import *
 
 
-def drawing_clusters(data, model):
-    fig = plt.figure(figsize=(4, 4))
-    fig.add_subplot(111, projection='3d')
-
-    labels = np.array(model.labels_[:])
-
-    cmap = plt.cm.Spectral
-    norm = plt.Normalize()
-    plt.scatter(data[:, 0], data[:, 1], data[:, 2], marker="x", c=cmap(norm(labels)))
-
-    # draws the center of each cluster
-    plt.scatter(model.cluster_centers_[:, 0], model.cluster_centers_[:, 1], model.cluster_centers_[:, 2],
-                marker="o", color="green")
-    plt.show()
-
-
-def main():
-    image_path = glob.glob("./Alphabet/letter-*/*.png")  # List all the files whose name matches "path"
+# Generates the data from the images in 'path'
+# Frome each image is generated a set of values (criterias) that will be used in the kmeans algorithm
+def data_generation(path):
+    image_path = glob.glob(path)  # List all the files whose name matches "path"
     detector = HandTracker()
     data = np.zeros(crit_nb)
-    print(len(image_path))
+    print(len(image_path))  # debug
 
+    # for each image of a hand
     for i in range(0, len(image_path)):
-        print(i)
+        print(i)  # debug
         img = cv2.imread(image_path[i])
 
         if img is None:
@@ -43,9 +27,9 @@ def main():
             lm_list = detector.find_position(img)
 
             if len(lm_list) == 0:
-                print("Could not detect a hand on image ", i, "\n")
+                print("Could not detect a hand on image ", i)
             else:
-                # Calculates the values of the criterias that will be used to train the k-means model
+                # Calculates the values of the criterias for the current image
                 lm_array = np.asarray(lm_list)
                 lm_array = lm_array[:, 1:3]  # delete the 1st of the 3 rows (the landmark indexes)
                 criteria_values = criterias(lm_array)
@@ -65,13 +49,24 @@ def main():
                 '''
                 # fin debug
 
+    return data[1:, :]
+
+
+def main():
+    # Generate the data from the hand image database
+    data = data_generation("./Alphabet/letter-*/*.png")
+
     # Applies the kmeans algorithm to the data
-    data = data[1:, :]
-    model = KMeans(n_clusters=3, init="k-means++", n_init=10, max_iter=1000)
+    nb_letters = 15
+    model = KMeans(n_clusters=nb_letters, init="k-means++", n_init=10, max_iter=1000)
     model.fit(data)
 
+    # Calculates some statistics about each cluster (distances, average distance, variance)
+    list_distances, cluster_stats = stats(model, data)
+    print(cluster_stats)
+
     # Saves the data and the k-means model obtained
-    save_object(KmeansData(data, model), "cluster_3_letters-v01")
+    save_object(KmeansData(data, model, list_distances, cluster_stats), "cluster_15_letters-v01")
 
 
 if __name__ == "__main__":

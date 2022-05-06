@@ -6,11 +6,14 @@ crit_nb = 24
 
 
 class KmeansData:
-    def __init__(self, data, model):
+    def __init__(self, data, model, distances, cluster_stats):
         self.data = data
         self.model = model
+        self.distances = distances
+        self.cluster_stats = cluster_stats
 
 
+# saves a KmeansData object into a .pickle file
 def save_object(obj, name):
     try:
         with open(name + ".pickle", "wb") as f:
@@ -19,6 +22,7 @@ def save_object(obj, name):
         print("Error during pickling object (Possibly unsupported):", ex)
 
 
+# loads a KmeansData object from a .pickle file
 def load_object(filename):
     try:
         with open(filename, "rb") as f:
@@ -27,6 +31,7 @@ def load_object(filename):
         print("Error during unpickling object (Possibly unsupported):", ex)
 
 
+# Computes from a list of hand landmarks a list of criterias that caracterize an image of hand
 def criterias(landmarks):
     criteria_values = np.zeros(crit_nb)
 
@@ -59,3 +64,25 @@ def criterias(landmarks):
     '''
     # print(criteria_values)
     return criteria_values
+
+
+# Computes some statistics about the cluster centers and the points corresponding to the hand images
+def stats(model, data):
+    # for each cluster, creates an array containing the distances between the cluster center and the cluster points
+    cluster_nb = len(model.cluster_centers_)
+    list_distances = [[0.0] for i in range(cluster_nb)]
+
+    for i in range(0, len(model.labels_)):
+        cluster = model.labels_[i]
+        list_distances[cluster].append(distance.euclidean(model.cluster_centers_[cluster], data[i]))
+
+    # for each cluster, calculates the average distance and its variance
+    cluster_stats = np.zeros((2, cluster_nb))
+
+    for i in range(cluster_nb):
+        list_distances[i].pop(0)
+        print(len(list_distances[i]))
+        cluster_stats[0][i] = np.average(list_distances[i])
+        cluster_stats[1][i] = np.std(list_distances[i])
+
+    return list_distances, cluster_stats

@@ -1,9 +1,7 @@
 import cv2
 import glob
 import matplotlib.pyplot as plt
-import numpy as np
 from sklearn.cluster import KMeans
-# from sklearn.preprocessing import StandardScaler
 from KmeansData import *
 
 

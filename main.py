@@ -8,6 +8,8 @@ from kmeans import KmeansData
 
 sys.modules['KmeansData'] = KmeansData
 
+letters = ["B", "C", "K", "I", "U", "L", "E", "G", "F", "W", "R", "V", "A", "Y", "O"]
+
 
 def fps(img, previous_time):
     current_time = time.time()
@@ -23,13 +25,11 @@ def fps(img, previous_time):
     return img, current_time
 
 
-def sign_detection(object_name, img):
-    obj = load_object(object_name)
-    detector = HandTracker()
-
+def sign_detection(obj, img, detector):
     # img_res = tracking(img)
     img_res = detector.hand_detection(img)
     lm_list = detector.find_position(img)
+
     if len(lm_list) != 0:
         # Calculates the values of the criterias that will be used to train the k-means model
         lm_array = np.asarray(lm_list)
@@ -42,19 +42,21 @@ def sign_detection(object_name, img):
 
             # if the eucl. distance between the image and the center of a cluster is less than the std deviation
             if abs(dist_cluster - obj.cluster_stats[0][i]) < obj.cluster_stats[1][i] ** (5 / 6):
-                print(i)
+                print(letters[i])
+                cv2.putText(img_res, letters[i], (400, 70), cv2.FONT_HERSHEY_PLAIN, 3, (255, 255, 255), 3)
                 break
 
     return img_res
 
 
 def main():
-    object_name = "kmeans/cluster_15_letters-v01.pickle"
+    obj = load_object("kmeans/cluster_15_letters-v01.pickle")
     cap = cv2.VideoCapture(0)
     if not cap.isOpened():
         print("Cannot open camera")
         exit()
 
+    detector = HandTracker()
     current_time = 0
     while True:
         success, img = cap.read()
@@ -62,7 +64,7 @@ def main():
             print("Can't receive frame (stream end?). Exiting ...")
             break
 
-        img_res = sign_detection(object_name, img)
+        img_res = sign_detection(obj, img, detector)
         img_res, current_time = fps(img_res, current_time)
         cv2.imshow("Reconnaissance LSF", img_res)
 
@@ -72,7 +74,6 @@ def main():
 
     cap.release()
     cv2.destroyAllWindows()
-    # cv.putText(img, f'FPS :{int(fps)}', (400, 70), cv.FONT_HERSHEY_PLAIN, 3, (255, 255, 255), 3)
 
 
 if __name__ == "__main__":

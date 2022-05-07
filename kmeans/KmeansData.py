@@ -2,7 +2,7 @@ import pickle
 import numpy as np
 from scipy.spatial import distance
 
-crit_nb = 24
+crit_nb = 33
 
 
 class KmeansData:
@@ -44,6 +44,7 @@ def criterias(landmarks):
 
         for j in range(nb2):
             # comparison of y coordinate between the tip of a finger and the other landmarks of the same finger
+            # (in order to know if the fingers are folded or straight)
             criteria_values[i*(nb2+1) + j+1] = landmarks[4 * (i+2)][1] - landmarks[4 * (i+2) - (j+1)][1]
 
     nb3 = 3
@@ -53,15 +54,26 @@ def criterias(landmarks):
         criteria_values[nb_t1 + i] = distance.euclidean(landmarks[4 * (i+2)], landmarks[4 * (i+3)])
 
     nb4 = 5
+    nb_t3 = nb_t2 + nb4
     for i in range(nb4):
         # distance between the palm and the tip of each finger
         criteria_values[nb_t2 + i] = distance.euclidean(landmarks[0], landmarks[4 * (i+1)])
 
-    '''
-    for i in range(1, len(landmarks)):
-        criteria_values[2*i - 2] = landmarks[0][0] - landmarks[i][0]  # compare x
-        criteria_values[2*i - 1] = landmarks[0][1] - landmarks[i][1]  # compare y
-    '''
+    nb5 = 4
+    nb_t4 = nb_t3 + nb5
+    for i in range(nb5):
+        # distance between index and little finger (for letters C and O)
+        criteria_values[nb_t3 + i] = distance.euclidean(landmarks[5+i], landmarks[17+i])
+
+    nb6 = 4
+    nb_t5 = nb_t4 + nb6
+    for i in range(nb6):
+        # distance between the tip of the little finger and the tip of the other fingers (letters A, E, Y)
+        criteria_values[nb_t4 + i] = distance.euclidean(landmarks[20], landmarks[20 - 4*(i+1)])
+
+    # comparison of x coordinate between the tip of index and middle finger (letters K and R)
+    criteria_values[nb_t5] = landmarks[8][0] - landmarks[12][0]
+
     # print(criteria_values)
     return criteria_values
 

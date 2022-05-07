@@ -1,6 +1,8 @@
 import time
 import sys
 
+from sklearn.preprocessing import StandardScaler
+
 # from myHandTracker import *
 from HandTracker import *
 from kmeans.KmeansData import *
@@ -8,7 +10,8 @@ from kmeans import KmeansData
 
 sys.modules['KmeansData'] = KmeansData
 
-letters = ["B", "C", "K", "I", "U", "L", "E", "G", "F", "W", "R", "V", "A", "Y", "O"]
+letters = ["L", "B", "C", "E", "Y", "O", "W", "G", "I", "R", "K", "F", "U", "V", "A"]
+# letters = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15"]
 
 
 def fps(img, previous_time):
@@ -25,7 +28,7 @@ def fps(img, previous_time):
     return img, current_time
 
 
-def sign_detection(obj, img, detector):
+def sign_detection(obj, img, detector, scaler):
     # img_res = tracking(img)
     img_res = detector.hand_detection(img)
     lm_list = detector.find_position(img)
@@ -34,8 +37,9 @@ def sign_detection(obj, img, detector):
         # Calculates the values of the criterias that will be used to train the k-means model
         lm_array = np.asarray(lm_list)
         lm_array = lm_array[:, 1:3]  # delete the 1st of the 3 rows (the landmark indexes)
+        scaled_data = scaler.fit_transform(lm_array)
 
-        criteria_values = criterias(lm_array)
+        criteria_values = criterias(scaled_data)
 
         for i in range(len(obj.model.cluster_centers_)):
             dist_cluster = distance.euclidean(obj.model.cluster_centers_[i], criteria_values)
@@ -50,13 +54,14 @@ def sign_detection(obj, img, detector):
 
 
 def main():
-    obj = load_object("kmeans/cluster_15_letters-v01.pickle")
+    obj = load_object("kmeans/cluster_15_letters-v02_scaled.pickle")
     cap = cv2.VideoCapture(0)
     if not cap.isOpened():
         print("Cannot open camera")
         exit()
 
     detector = HandTracker()
+    scaler = StandardScaler()
     current_time = 0
     while True:
         success, img = cap.read()
@@ -64,7 +69,7 @@ def main():
             print("Can't receive frame (stream end?). Exiting ...")
             break
 
-        img_res = sign_detection(obj, img, detector)
+        img_res = sign_detection(obj, img, detector, scaler)
         img_res, current_time = fps(img_res, current_time)
         cv2.imshow("Reconnaissance LSF", img_res)
 

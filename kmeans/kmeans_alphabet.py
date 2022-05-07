@@ -1,6 +1,7 @@
 import glob
 
 from sklearn.cluster import KMeans
+from sklearn.preprocessing import StandardScaler
 
 from KmeansData import *
 from HandTracker import *
@@ -11,6 +12,7 @@ from HandTracker import *
 def data_generation(path):
     image_path = glob.glob(path)  # List all the files whose name matches "path"
     detector = HandTracker()
+    scaler = StandardScaler()
     data = np.zeros(crit_nb)
     print(len(image_path))  # debug
 
@@ -29,25 +31,25 @@ def data_generation(path):
             if len(lm_list) == 0:
                 print("Could not detect a hand on image ", i)
             else:
-                # Calculates the values of the criterias for the current image
+                # Calculates the values of the criterias for the current image after scaling the values
                 lm_array = np.asarray(lm_list)
                 lm_array = lm_array[:, 1:3]  # delete the 1st of the 3 rows (the landmark indexes)
-                criteria_values = criterias(lm_array)
+                scaled_data = scaler.fit_transform(lm_array)
+                criteria_values = criterias(scaled_data)
 
                 # Adds these values to the array 'data'
                 data = np.block([[data], [criteria_values]])
 
-                # debug : affiche les images avec les landmarks
                 '''
+                print(image_path[i]) # debug : affiche les images avec les landmarks
                 img_res = cv2.circle(img_res, (10, 10), radius=10, color=(0, 0, 255), thickness=-1)
                 img_res = cv2.circle(img_res, (300, 10), radius=10, color=(0, 0, 255), thickness=-1)
                 img_res = cv2.circle(img_res, (10, 100), radius=10, color=(0, 0, 255), thickness=-1)
                 cv2.imshow("test", img_res)
                 if cv2.waitKey(10000000) == ord('q'):
                     # cv2.imwrite("hand_draw.png", img)
-                    continue
+                    continue  # fin debug 
                 '''
-                # fin debug
 
     return data[1:, :]
 
@@ -66,7 +68,7 @@ def main():
     print(cluster_stats)
 
     # Saves the data and the k-means model obtained
-    save_object(KmeansData(data, model, list_distances, cluster_stats), "cluster_15_letters-v01")
+    save_object(KmeansData(data, model, list_distances, cluster_stats), "cluster_15_letters-v02_scaled")
 
 
 if __name__ == "__main__":

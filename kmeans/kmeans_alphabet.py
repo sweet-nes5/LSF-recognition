@@ -4,7 +4,7 @@ from sklearn.cluster import KMeans
 from sklearn.preprocessing import StandardScaler
 
 from KmeansData import *
-from HandTracker import *
+from HandTracker.HandTracker import *
 
 
 # Generates the data from the images in 'path'

@@ -4,7 +4,7 @@ import sys
 from sklearn.preprocessing import StandardScaler
 
 # from myHandTracker import *
-from HandTracker import *
+from HandTracker.HandTracker import *
 from kmeans.KmeansData import *
 from kmeans import KmeansData
 
